@@ -10,9 +10,11 @@ from biblioteca import devolverLibro
 from biblioteca import buscarLibros
 from biblioteca import crearLibro
 from biblioteca import reportePopulares
+from db_init import init_db
 
 def main():
     
+    init_db()
     while True:
         print("\n--- Biblioteca ---")
         print("1. Agregar libro")

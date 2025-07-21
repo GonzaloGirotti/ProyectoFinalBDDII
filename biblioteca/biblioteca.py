@@ -7,30 +7,34 @@ db = client["biblioteca_digital"]
 libros = db["libros"]
 prestamos = db["prestamos"]
 
+libro = None
+
+
+
+
 def crearLibro():
-    
-    
+    global libro
     libro = {}
+    print("=" * 30)
+    print("Ingrese los detalles del libro:")
+    print("=" * 30)
     
     libro['titulo'] = input("Ingrese el título del libro: ")
     libro['autor'] = input("Ingrese el autor del libro: ")
     libro['isbn'] = input("Ingrese el ISBN del libro: ")
     libro['genero'] = input("Ingrese el género del libro: ")
     libro['copias'] = input("Ingrese la cantidad de copias disponibles: ")
-    
-    while not libro['titulo'] or not libro['autor'] or not libro['isbn'] or not libro['genero']:
+
+    while not libro['titulo'] or not libro['autor'] or not libro['isbn'] or not libro['genero'] or not libro['copias']:
         print("Todos los campos son obligatorios.")
         crearLibro()
-        return None
-    
+        return libro
+
     while not libro['copias'].isdigit():
         print("La cantidad de copias debe ser un número entero.")
-        try:
-            libro['copias'] = input("Ingrese la cantidad de copias disponibles: ")
-        except ValueError:
-            print("La cantidad de copias debe ser un número entero.")
-            return None
-        
+        crearLibro()
+        return libro
+
     libro['copias'] = int(libro['copias'])
     libro['disponibles'] = libro['copias']
     
@@ -39,7 +43,6 @@ def crearLibro():
 
 def agregarLibro(libro):
     try:
-        libro['disponibles'] = libro['copias']
         result = libros.insert_one(libro)
         print(f"Libro agregado con ID: {result.inserted_id}")
     except errors.DuplicateKeyError:
@@ -57,8 +60,10 @@ def prestarLibro(isbn, usuario):
     if not libro:
         print("Libro no encontrado.")
         return
-    
-    if libro["disponibles"] <= 0:
+    elif usuario=="":
+        print("El usuario no puede estar vacío.")
+        return
+    elif libro["disponibles"] <= 0:
         print("No hay copias disponibles de este libro para el préstamo.")
         return
     
