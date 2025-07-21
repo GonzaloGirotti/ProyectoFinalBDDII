@@ -112,21 +112,43 @@ def devolverLibro(prestamoId):
 
 def buscarLibros(criterio):
     try:
-        if(criterio == ""):
-            print("Por favor, ingrese un criterio de búsqueda.")
+        if criterio == "":
+            print("Por favor, ingrese un criterio de busqueda.")
             return
-        elif(criterio=="autor"):
-            autor = input("Ingrese el nombre del autor: ")
-            resultados = libros.find({"autor": autor})
-        elif(criterio=="titulo"):
-            titulo = input("Ingrese el título del libro: ")
-            resultados = libros.find({"titulo": titulo})
-        elif(criterio=="genero"):
-            genero = input("Ingrese el género del libro: ")
-            resultados = libros.find({"genero": genero})
 
+        filtro = {}
+        campo = ""
         
-        if resultados.count() == 0:
+        if criterio == "autor":
+            campo = "autor"
+            valor = input("Ingrese el nombre del autor: ")
+            filtro = {campo: {"$regex": valor, "$options": "i"}} # el regex $options: "i" es para busqueda insensible a mayusculas y minusculas
+        elif criterio == "titulo":
+            campo = "titulo"
+            valor = input("Ingrese el título del libro: ")
+            filtro = {campo: {"$regex": valor, "$options": "i"}}
+        elif criterio == "genero":
+            campo = "genero"
+            valor = input("Ingrese el género del libro: ")
+            filtro = {campo: {"$regex": valor, "$options": "i"}}
+        else:
+            print("Criterio inválido. Use: titulo, autor o genero.")
+            return
+
+        resultados = list(libros.find(filtro))
+
+        if len(resultados) == 0:
+            print("No se encontraron libros con ese criterio.")
+        else:
+            print(f"Libros encontrados con el criterio '{criterio}':")
+            print("--------------------------------------------------")
+            for libro in resultados:
+                print(f"ID: {libro['_id']}, Título: {libro['titulo']}, Autor: {libro['autor']}, ISBN: {libro['isbn']}, Disponibles: {libro['disponibles']}")
+
+    except Exception as e:
+        print("Error al buscar libros:", e)
+
+        if len(resultados) == 0:
             print("No se encontraron libros con ese criterio.")
             return
         else:
